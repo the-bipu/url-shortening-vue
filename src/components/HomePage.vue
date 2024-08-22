@@ -37,33 +37,66 @@
 
       <div class="w-10/12 flex flex-row items-center justify-center absolute -top-20">
         <div class="inputSection w-full px-12 min-h-40 rounded-md flex flex-row gap-6 items-center justify-center">
-          <input type="text" placeholder="Shorten a link here..."
+          <input type="text" v-model="requestedUrl" placeholder="Shorten a link here..."
             class="h-14 w-10/12 rounded-lg bg-white indent-4 outline-none">
-          <button class="w-2/12 bg-[#29D1D1] rounded-lg min-h-14">Shorten It!</button>
+          <button class="w-2/12 bg-[#29D1D1] rounded-lg min-h-14 font-bold text-white" @click="shortenUrl">Shorten
+            It!</button>
+        </div>
+      </div>
+      <button class="w-2/12 bg-[#29D1D1] rounded-lg min-h-14 font-bold text-white" @click="getData">Shorten
+        It!</button>
+
+      <div class='h-16 w-10/12 flex items-center justify-between pl-8 pr-4 bg-white rounded' v-if="apiResult">
+        <div class="md:w-8/12 w-full flex items-start font-semibold text-xl">
+          <a href="requestedUrl" target="_blank">{{ requestedUrl }}</a>
+        </div>
+        <div class="flex flex-row items-center justify-between md:w-4/12 w-full">
+          <div class="text-[#29D1D1] font-semibold text-xl">
+            <a href="apiResult.result_url" target="_blank">{{ apiResult.result_url }}</a>
+          </div>
+          <button class="font-semibold py-2 bg-[#29D1D1] text-white rounded px-6" v-if="!isCopied">Copy</button>
+          <button class="font-semibold py-2 bg-[#29D1D1] text-white rounded px-6" v-if="isCopied">Copied</button>
         </div>
       </div>
 
-      <div class="w-10/12 flex flex-col">
+      <div class="w-10/12 flex flex-col mt-32 items-center justify-center">
         <p class="text-5xl font-bold text-[#232127]">Advanced Statistics</p>
-        <p>
+        <p class="text-lg md:w-6/12 w-full my-4 text-[#9C9DA2]">
           Track how your links are performing across the web with our
           advanced statistics dashboard.
         </p>
 
-        Brand Recognition
+        <div class="flex flex-row gap-7 justify-between items-center text-left">
 
-        Boost your brand recognition with each click. Generic links don’t
-        mean a thing. Branded links help instil confidence in your content.
+          <div class="bg-white min-w-80 p-6 pt-16 pb-10 rounded-md relative">
+            <div class="w-20 h-20 rounded-full bg-[#3A3053] flex items-center justify-center absolute -top-10">
+              <img src="../assets/images/icon-brand-recognition.svg" alt="">
+            </div>
+            <div class="mb-8 text-xl font-bold">Brand Recognition</div>
+            <div class="text-[#969698]">Boost your brand recognition with each click. Generic links don’t
+              mean a thing. Branded links help instil confidence in your content.</div>
+          </div>
 
-        Detailed Records
+          <div class="bg-white min-w-80 p-6 pt-16 pb-10 mt-10 rounded-md relative">
+            <div class="w-20 h-20 rounded-full bg-[#3A3053] flex items-center justify-center absolute -top-10">
+              <img src="../assets/images/icon-detailed-records.svg" alt="">
+            </div>
+            <div class="mb-8 text-xl font-bold">Detailed Records</div>
+            <div class="text-[#969698]">Gain insights into who is clicking your links. Knowing when and where
+              people engage with your content helps inform better decisions.</div>
+          </div>
 
-        Gain insights into who is clicking your links. Knowing when and where
-        people engage with your content helps inform better decisions.
+          <div class="bg-white min-w-80 p-6 pt-16 pb-10 mt-20 rounded-md relative">
+            <div class="w-20 h-20 rounded-full bg-[#3A3053] flex items-center justify-center absolute -top-10">
+              <img src="../assets/images/icon-fully-customizable.svg" alt="">
+            </div>
+            <div class="mb-8 text-xl font-bold">Fully Customizable</div>
+            <div class="text-[#969698]">Improve brand awareness and content discoverability through customizable
+              links, supercharging audience engagement.</div>
+          </div>
 
-        Fully Customizable
+        </div>
 
-        Improve brand awareness and content discoverability through customizable
-        links, supercharging audience engagement.
       </div>
     </div>
 
@@ -121,8 +154,46 @@ export default {
   name: 'HomePage',
   props: {
     msg: String
-  }
-}
+  },
+  data() {
+    return {
+      isCopied: false,
+      requestedUrl: '',
+      apiResult: null,
+    };
+  },
+  methods: {
+    async shortenUrl() {
+      if (!this.requestedUrl) {
+        alert('Please enter a URL.');
+        return;
+      }
+      const API_KEY = process.env.API_KEY;
+
+      try {
+        const response = await fetch(
+          `https://tinyurl.com/api-create.php?url=${this.requestedUrl}&api_key=${API_KEY}`
+        );
+
+        if (response.ok) {
+          const shortenedUrl = await response.text();
+          console.log('Shortened URL:', shortenedUrl);
+
+          this.apiResult = shortenedUrl;
+        } else {
+          throw new Error('Failed to shorten URL');
+        }
+
+      } catch (error) {
+        console.error('Error shortening URL', error);
+      }
+    },
+    copyResult() {
+      navigator.clipboard.writeText(this.apiResult.result_url);
+      this.isCopied = true;
+    },
+  },
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
