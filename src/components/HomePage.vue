@@ -43,8 +43,6 @@
             It!</button>
         </div>
       </div>
-      <button class="w-2/12 bg-[#29D1D1] rounded-lg min-h-14 font-bold text-white" @click="getData">Shorten
-        It!</button>
 
       <div class='h-16 w-10/12 flex items-center justify-between pl-8 pr-4 bg-white rounded' v-if="apiResult">
         <div class="md:w-8/12 w-full flex items-start font-semibold text-xl">
@@ -52,7 +50,7 @@
         </div>
         <div class="flex flex-row items-center justify-between md:w-4/12 w-full">
           <div class="text-[#29D1D1] font-semibold text-xl">
-            <a href="apiResult.result_url" target="_blank">{{ apiResult.result_url }}</a>
+            <a href="apiResult" target="_blank">{{ apiResult }}</a>
           </div>
           <button class="font-semibold py-2 bg-[#29D1D1] text-white rounded px-6" v-if="!isCopied">Copy</button>
           <button class="font-semibold py-2 bg-[#29D1D1] text-white rounded px-6" v-if="isCopied">Copied</button>
@@ -189,7 +187,7 @@ export default {
       }
     },
     copyResult() {
-      navigator.clipboard.writeText(this.apiResult.result_url);
+      navigator.clipboard.writeText(this.apiResult);
       this.isCopied = true;
     },
   },
