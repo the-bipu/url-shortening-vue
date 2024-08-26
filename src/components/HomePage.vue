@@ -44,13 +44,13 @@
         </div>
       </div>
 
-      <div class='h-16 w-10/12 flex items-center justify-between pl-8 pr-4 bg-white rounded' v-if="apiResult">
+      <div class='h-16 w-10/12 flex items-center justify-between pl-8 pr-4 bg-white rounded' v-if="shortlyCode">
         <div class="md:w-8/12 w-full flex items-start font-semibold text-xl">
           <a href="requestedUrl" target="_blank">{{ requestedUrl }}</a>
         </div>
         <div class="flex flex-row items-center justify-between md:w-4/12 w-full">
           <div class="text-[#29D1D1] font-semibold text-xl">
-            <a href="apiResult" target="_blank">{{ apiResult }}</a>
+            <a href="shortlyCode" target="_blank">{{ shortlyCode }}</a>
           </div>
           <button class="font-semibold py-2 bg-[#29D1D1] text-white rounded px-6" v-if="!isCopied">Copy</button>
           <button class="font-semibold py-2 bg-[#29D1D1] text-white rounded px-6" v-if="isCopied">Copied</button>
@@ -150,14 +150,12 @@
 <script>
 export default {
   name: 'HomePage',
-  props: {
-    msg: String
-  },
   data() {
     return {
       isCopied: false,
       requestedUrl: '',
-      apiResult: null,
+      shortlyCode: '', 
+      resultSkeleton: '',
     };
   },
   methods: {
@@ -166,28 +164,32 @@ export default {
         alert('Please enter a URL.');
         return;
       }
-      const API_KEY = process.env.API_KEY;
 
       try {
-        const response = await fetch(
-          `https://tinyurl.com/api-create.php?url=${this.requestedUrl}&api_key=${API_KEY}`
-        );
+        const response = await fetch(process.env.URI, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ inputValue: this.requestedUrl })
+        });
 
-        if (response.ok) {
-          const shortenedUrl = await response.text();
-          console.log('Shortened URL:', shortenedUrl);
+        const result = await response.json();
 
-          this.apiResult = shortenedUrl;
+        if (result.success) {
+          this.shortlyCode = result.data.url;
+          this.resultSkeleton = `<div class="result">Shortened URL: <a href="${this.shortlyCode}" target="_blank">${this.shortlyCode}</a></div>`;
         } else {
-          throw new Error('Failed to shorten URL');
+          this.resultSkeleton = '<div class="result">Failed to shorten URL.</div>';
         }
-
       } catch (error) {
         console.error('Error shortening URL', error);
+        this.resultSkeleton = '<div class="result">An error occurred while shortening the URL.</div>';
       }
     },
     copyResult() {
-      navigator.clipboard.writeText(this.apiResult);
+      navigator.clipboard.writeText(this.shortlyCode); // update to copy shortlyCode
       this.isCopied = true;
     },
   },
