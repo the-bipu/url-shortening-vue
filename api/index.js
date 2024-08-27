@@ -9,6 +9,10 @@ app.use(cors());
 
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  return res.status(234).send('Welcome Buddy!');
+});
+
 app.post('/api/shorten', async (req, res) => {
   try {
     const { url } = req.body;
