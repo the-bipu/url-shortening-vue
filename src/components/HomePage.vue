@@ -2,20 +2,7 @@
   <div class="flex w-full h-auto flex-col p-0 items-center justify-center">
 
     <!-- Navbar is styled here -->
-    <div class="w-10/12 flex flex-row items-center justify-between py-8">
-      <div class="flex flex-row gap-10 items-center justify-center">
-        <img src="../assets/images/logo.svg" alt="">
-        <div class="flex flex-row gap-8 items-center">
-          <div>Features</div>
-          <div>Pricing</div>
-          <div>Resources</div>
-        </div>
-      </div>
-      <div class="flex flex-row gap-8 items-center justify-center">
-        <div>Login</div>
-        <div class="font-semibold py-2 bg-[#29D1D1] text-white rounded-full px-6">Sign Up</div>
-      </div>
-    </div>
+    <NavbarCmp />
 
     <div class="w-full flex items-center justify-center relative overflow-hidden">
 
@@ -44,18 +31,22 @@
         </div>
       </div>
 
-      <div class='h-16 w-10/12 flex items-center justify-between pl-8 pr-4 bg-white rounded' v-if="shortlyCode">
-        <div class="md:w-8/12 w-full flex items-start font-semibold text-xl">
-          <a href="requestedUrl" target="_blank">{{ requestedUrl }}</a>
-        </div>
-        <div class="flex flex-row gap-4 items-center justify-between md:w-4/12 w-full">
-          <div class="text-[#29D1D1] font-semibold text-xl">
-            <a href="shortlyCode" target="_blank">{{ shortlyCode }}</a>
+      <div v-for="(item, index) in shortenedUrls" :key="index"
+        class="w-full h-auto flex flex-col items-center justify-center">
+        <div class='h-16 w-10/12 flex items-center justify-between pl-8 pr-4 mb-4 bg-white rounded'>
+          <div class="md:w-7/12 w-full flex items-start font-semibold text-xl">
+            <a :href="item.requestedUrl" target="_blank">{{ item.requestedUrl }}</a>
           </div>
-          <button class="font-semibold py-2 bg-[#29D1D1] text-white rounded px-6" @click="copyResult"
-            v-if="!isCopied">Copy</button>
-          <button class="font-semibold py-2 bg-[#29D1D1] text-white rounded px-6" @click="copyResult"
-            v-if="isCopied">Copied</button>
+          <div class="flex flex-row gap-4 items-center justify-between md:w-5/12 w-full">
+            <div class="text-[#29D1D1] font-semibold text-xl">
+              <a :href="item.resultUrl" target="_blank">{{ item.resultUrl }}</a>
+            </div>
+            <button class="font-semibold py-2 bg-[#29D1D1] text-white rounded px-6"
+              @click="copyToClipboard(item, index)" v-if="!item.isCopied">Copy</button>
+            <button class="font-semibold py-2 bg-[#29D1D1] text-white rounded px-6" v-if="item.isCopied">Copied</button>
+            <button class="font-semibold py-2 bg-red-500 text-white rounded px-6"
+              @click="clearInput(index)">Clear</button>
+          </div>
         </div>
       </div>
 
@@ -150,20 +141,25 @@
 </template>
 
 <script>
+import NavbarCmp from './NavbarCmp.vue';
+
 export default {
   name: 'HomePage',
+  components: {
+    NavbarCmp
+  },
   data() {
     return {
       isCopied: false,
       requestedUrl: '',
       shortlyCode: '',
-      resultSkeleton: '',
+      shortenedUrls: [],
     };
   },
   methods: {
     async shortenUrl() {
       try {
-        const response = await fetch(`${process.env.API_URI}/api/shorten`, {
+        const response = await fetch(`https://url-shortening-vue-backend.vercel.app/api/shorten`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -180,17 +176,49 @@ export default {
         } else {
           this.shortlyCode = data.result_url;
           this.errorMessage = '';
+
+          // Create an object with requestedUrl, shortlyCode, and clicked status
+          const shortenedUrl = {
+            requestedUrl: this.requestedUrl,
+            resultUrl: this.shortlyCode,
+          };
+
+          // Push to shortenedUrls array
+          this.shortenedUrls.push(shortenedUrl);
+
+          // Store in localStorage
+          localStorage.setItem('shortenedUrls', JSON.stringify(this.shortenedUrls));
+          this.requestedUrl = '';
         }
       } catch (error) {
         this.errorMessage = 'An error occurred. Please try again.';
         this.shortlyCode = '';
       }
     },
-    copyResult() {
-      navigator.clipboard.writeText(this.shortlyCode);
-      this.isCopied = true;
-      console.log(this.isCopied)
+    copyToClipboard(item, index) {
+      navigator.clipboard.writeText(item.resultUrl);
+      this.shortenedUrls[index].isCopied = true; // Set isCopied to true for the clicked item
+
+      // Reset isCopied after a delay, if desired
+      setTimeout(() => {
+        this.shortenedUrls[index].isCopied = false;
+      }, 3000);
     },
+    clearInput(index) {
+      // Remove the item at the specific index
+      this.shortenedUrls.splice(index, 1);
+      // Update localStorage after removing the item
+      localStorage.setItem('shortenedUrls', JSON.stringify(this.shortenedUrls));
+    },
+    loadShortenedUrls() {
+      const storedUrls = localStorage.getItem('shortenedUrls');
+      if (storedUrls) {
+        this.shortenedUrls = JSON.parse(storedUrls);
+      }
+    },
+  },
+  mounted() {
+    this.loadShortenedUrls();
   },
 };
 </script>
