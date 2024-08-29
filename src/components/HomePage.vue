@@ -6,15 +6,15 @@
 
     <div class="w-full flex items-center justify-center relative overflow-hidden">
 
-      <div class="w-10/12 flex flex-row items-center justify-between">
-        <div class="flex flex-col gap-8 items-start text-left w-1/2 pt-32 pb-56">
-          <div class="text-7xl font-extrabold leading-[80px] text-[#302F35]">More than just shorter links</div>
+      <div class="w-10/12 flex md:flex-row flex-col-reverse items-center justify-between">
+        <div class="flex flex-col gap-8 md:items-start items-center md:text-left text-center md:w-1/2 w-11/12 md:pt-32 pt-6 md:pb-56 pb-40">
+          <div class="md:text-7xl text-4xl font-extrabold md:leading-[80px] leading-[50px] text-[#302F35]">More than just shorter links</div>
           <div class="text-xl">Build your brand’s recognition and get detailed insights
             on how your links are performing.
           </div>
           <button class="text-xl font-semibold py-3 bg-[#29D1D1] text-white rounded-full px-6">Get Started</button>
         </div>
-        <img src="../assets/images/illustration-working.svg" alt="" class="absolute -right-24 top-10">
+        <img src="../assets/images/illustration-working.svg" alt="" class="md:absolute relative md:-right-24 right-0 md:top-10 top-0">
       </div>
 
     </div>
@@ -23,29 +23,29 @@
     <div class="w-full bg-[#F0F1F6] flex items-center justify-center flex-col relative py-32">
 
       <div class="w-10/12 flex flex-row items-center justify-center absolute -top-20">
-        <div class="inputSection w-full px-12 min-h-40 rounded-md flex flex-row gap-6 items-center justify-center">
+        <div class="inputSection w-full md:px-12 px-2 min-h-40 rounded-md flex md:flex-row flex-col gap-6 items-center justify-center">
           <input type="text" v-model="requestedUrl" placeholder="Shorten a link here..."
-            class="h-14 w-10/12 rounded-lg bg-white indent-4 outline-none">
-          <button class="w-2/12 bg-[#29D1D1] rounded-lg min-h-14 font-bold text-white" @click="shortenUrl">Shorten
+            class="h-14 md:w-10/12 w-full rounded-lg bg-white indent-4 outline-none">
+          <button class="md:w-2/12 w-full bg-[#29D1D1] rounded-lg min-h-14 font-bold text-white" @click="shortenUrl">Shorten
             It!</button>
         </div>
       </div>
 
       <div v-for="(item, index) in shortenedUrls" :key="index"
         class="w-full h-auto flex flex-col items-center justify-center">
-        <div class='h-16 w-10/12 flex items-center justify-between pl-8 pr-4 mb-4 bg-white rounded'>
+        <div class='md:h-16 h-auto w-10/12 flex md:flex-row flex-col md:items-center items-start justify-between pl-8 pr-4 mb-4 bg-white rounded relative'>
           <div class="md:w-7/12 w-full flex items-start font-semibold text-xl">
             <a :href="item.requestedUrl" target="_blank">{{ item.requestedUrl }}</a>
           </div>
-          <div class="flex flex-row gap-4 items-center justify-between md:w-5/12 w-full">
+          <div class="flex md:flex-row flex-col gap-4 items-center justify-between md:w-5/12 w-full">
             <div class="text-[#29D1D1] font-semibold text-xl">
               <a :href="item.resultUrl" target="_blank">{{ item.resultUrl }}</a>
             </div>
             <button class="font-semibold py-2 bg-[#29D1D1] text-white rounded px-6"
               @click="copyToClipboard(item, index)" v-if="!item.isCopied">Copy</button>
             <button class="font-semibold py-2 bg-[#29D1D1] text-white rounded px-6" v-if="item.isCopied">Copied</button>
-            <button class="font-semibold py-2 bg-red-500 text-white rounded px-6"
-              @click="clearInput(index)">Clear</button>
+            <button class="font-semibold bg-[#03030356] text-white rounded-full absolute -right-2 w-6 h-6 -top-2"
+              @click="clearInput(index)">x</button>
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@
           advanced statistics dashboard.
         </p>
 
-        <div class="flex flex-row gap-7 justify-between items-center text-left">
+        <div class="flex md:flex-row flex-col gap-7 justify-between items-center text-left">
 
           <div class="bg-white min-w-80 p-6 pt-16 pb-10 rounded-md relative">
             <div class="w-20 h-20 rounded-full bg-[#3A3053] flex items-center justify-center absolute -top-10">
